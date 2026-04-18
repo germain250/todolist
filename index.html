@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Todo App</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Todo App</h1>
+            <p>Stay Organized Teddy</p>
+        </header>
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" placeholder="Enter the task title" id="titleInput" required>
+            <textarea name="description" id="taskDescription" placeholder="Enter Task description" required></textarea>
+
+            <button class="add-btn" onclick="addTask()">Add Task</button>
+            </div>
+
+        </div>
+        <div class="filters">
+            <button onclick="setFilter('all')" class="filter-btn active">All</button>
+            <button onclick="setFilter('active')" class="filter-btn ">Active</button>
+            <button onclick="setFilter('completed')" class="filter-btn ">Completed</button>
+        </div>
+        <div class="task-list" id="taskList">
+
+
+
+        </div>
+    </div>
+    
+    <script>
+        let tasks = [];
+        let currentFilter = 'all';
+
+        //CRUD Create Read Update Delete
+
+        //Read
+
+        function loadTasks(){
+            const savedTasks = localStorage.getItem("tasks")
+            if(savedTasks){
+                tasks = JSON.parse(savedTasks)
+            }
+            displayTasks();
+        }
+
+        function setFilter(filter){
+            currentFilter = filter
+            displayTasks()
+        }
+
+        function displayTasks(){
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML= "";
+
+            let filteredTasks = tasks;
+
+            if(currentFilter == 'active'){
+                filteredTasks = tasks.filter(task => !task.completed)
+            } else if(currentFilter == 'completed'){
+                filteredTasks = tasks.filter(task => task.completed)
+            }
+
+            if (filteredTasks.length ===0){
+                taskList.innerHTML = `
+                <div class="empty-state">
+                    <p>No Tasks found</p>            
+                `
+            }
+            console.log(filteredTasks)
+
+            filteredTasks.forEach(task => {
+                const taskElement = document.createElement("div");
+                taskElement.className = `todo-item ${task.completed ? 'completed' : ''}`;
+
+                taskElement.innerHTML = `
+                <div class="checkbox" onclick="toggleComplete(${task.id})">X</div>
+                <div class="task-content">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-description"> ${task.description}</div>               
+                    </div>
+                    <button onclick="deleteTask(${task.id})">Delete</button>       
+                `
+                taskList.appendChild(taskElement);
+            }); 
+        }
+
+        function deleteTask(id){
+            if (confirm("Delete this task?")){
+                tasks = tasks.filter((task => task.id !== id));
+                saveTask()
+                displayTasks()
+            }
+        }
+        function toggleComplete(id){
+            tasks = tasks.map(task => {
+                if(task.id == id){
+                    return { ...task, completed: !task.completed }
+                }
+                return task
+            });
+            saveTask()
+            displayTasks();                 
+        }
+
+        function addTask(){
+            const titleInput = document.getElementById("titleInput");
+            const descriptionInput = document.getElementById("taskDescription");
+
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+
+            const newTasks = {
+                id: Date.now(),
+                title: title,
+                description: description,
+                completed: false
+            }
+            tasks.unshift(newTasks);
+            saveTask();
+            displayTasks();
+
+            titleInput.value = "";
+            descriptionInput.value = "";
+        }
+
+        function saveTask(){
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+        loadTasks();
+    </script>
+</body>
+</html>
+
+
+newTask = {
+    "id": "",
+    "title": "",
+    "description": "",
+    "steps":[
+    {
+        "name": "",
+        "description",
+        isCompleted: true
+    },
+    {
+        
+    }
+    ],
+    
+    createdAt: "",
+    completedAt: ""
+}
